@@ -32,7 +32,14 @@ path_t StageState::get_path() {
  * @return Vector of minimum values in row.
  */
 std::vector<cost_t> CostMatrix::get_min_values_in_rows() const {
-    throw;  // TODO: Implement it!
+    std::vector<cost_t> result(matrix_.size());
+    for(int & i : result)
+        i=INF;
+    for(auto el:matrix_)
+        for(int i=0;i<result.size();i++)
+            if(result[i]>el[i])
+                result[i]=el[i];
+    return result;
 }
 
 /**
@@ -40,7 +47,12 @@ std::vector<cost_t> CostMatrix::get_min_values_in_rows() const {
  * @return Sum of values reduced in rows.
  */
 cost_t CostMatrix::reduce_rows() {
-    throw;  // TODO: Implement it!
+    auto rows=get_min_values_in_rows();
+    for(int i=0;i<rows.size();i++)
+        for(int j=0;j<rows.size();j++)
+            if(matrix_[i][j]!=INF)
+                matrix_[i][j]-=rows[i];
+    return std::accumulate(rows.begin(),rows.end(),0);
 }
 
 /**
@@ -48,8 +60,14 @@ cost_t CostMatrix::reduce_rows() {
  * @return Vector of minimum values in columns.
  */
 std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
-    std::vector<cost_t> min_values;
-    throw;  // TODO: Implement it!
+    std::vector<cost_t> result(matrix_.size());
+    for(int & i : result)
+        i=INF;
+    for(int i=0;i<result.size();i++)
+        for(int j=0;j<result.size();j++)
+            if(result[i]>matrix_[i][j])
+                result[i]=matrix_[i][j];
+    return result;
 }
 
 /**
@@ -57,7 +75,12 @@ std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
  * @return Sum of values reduced in columns.
  */
 cost_t CostMatrix::reduce_cols() {
-    throw;  // TODO: Implement it!
+    auto cols=get_min_values_in_cols();
+    for(int i=0;i<cols.size();i++)
+        for(int j=0;j<cols.size();j++)
+            if(matrix_[i][j]!=INF)
+                matrix_[i][j]-=cols[j];
+            return std::accumulate(cols.begin(),cols.end(),0);
 }
 
 /**
@@ -67,7 +90,16 @@ cost_t CostMatrix::reduce_cols() {
  * @return The sum of minimal values in row and col, excluding the intersection value.
  */
 cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
-    throw;  // TODO: Implement it!
+    int a=0;
+    int b=0;
+    for(int i=0;i<matrix_.size();i++)
+    {
+        if(i!=row and matrix_[col][i]!=INF and matrix_[col][i]>a)
+            a=matrix_[col][i];
+        if(i!=row and matrix_[i][row]!=INF and matrix_[i][row]>b)
+            b=matrix_[i][row];
+    }
+    return a+b;
 }
 
 /* PART 2 */

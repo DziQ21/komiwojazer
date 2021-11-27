@@ -9,6 +9,13 @@ int main() {
                       {8,   20, INF, 4,  2},
                       {19,  6,  4, INF,  7},
                       {12,  3,  2,   7, INF}};
+    CostMatrix test(cm);
+    auto a=test.get_min_values_in_rows();
+    auto b=test.get_min_values_in_cols();
+    auto c=test.get_vertex_cost(1,2);
+
+    //auto a=cm[0];
+    std::cout<<std::endl;
 
     /* Rozwiązania:
  * 32 : 3 4 5 2 1
