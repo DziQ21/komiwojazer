@@ -72,7 +72,6 @@ int main() {
     */
     printf("lol");
     tsp_solutions_t solutions = solve_tsp(cm);
-    printf("lol2");
 
     for (auto elem : solutions) {
         std::cout << elem.lower_bound << " : ";

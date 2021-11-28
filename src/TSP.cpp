@@ -29,20 +29,21 @@ path_t StageState::get_path() {
         for(int j=0;j<unsorted_path_.size();j++)
             matrix_[unsorted_path_[i].col][unsorted_path_[j].row]=INF;
     int rest=0;
+    auto unsorted=unsorted_path_;
     for (int i = 0; i < matrix_.size(); ++i)
         for (int j = 0; j < matrix_.size(); ++j)
             if(matrix_[i][j]!=INF)
             {
                 rest+=matrix_[i][j];
-                unsorted_path_.push_back(vertex_t(i,j));
+                unsorted.push_back(vertex_t(i,j));
             }
     lower_bound_+=rest;
     path_t result;
-    result.push_back(unsorted_path_[0].row);
-    while(result.size()<unsorted_path_.size())
-        for(int i=0;i<unsorted_path_.size();i++)
-            if(unsorted_path_[i].row==result[result.size()-1])
-                result.push_back(unsorted_path_[i].col);
+    result.push_back(unsorted[0].row);
+    while(result.size()<unsorted.size())
+        for(int i=0;i<unsorted.size();i++)
+            if(unsorted[i].row==result[result.size()-1])
+                result.push_back(unsorted[i].col);
     for(auto &el:result)
         el++;
     return result;
@@ -290,7 +291,7 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
                                                       new_lower_bound));
             auto test=create_right_branch_matrix(cm, new_vertex.coordinates,
                                             new_lower_bound);
-            printf("co jest ?");
+            std::cout<<test.get_matrix();
 
         }
 
@@ -298,8 +299,9 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
 
             // If the new solution is at least as good as the previous one,
             // save its lower bound and its path.
-            best_lb = left_branch.get_lower_bound();
+
             path_t new_path = left_branch.get_path();
+            best_lb = left_branch.get_lower_bound();
             solutions.push_back({get_optimal_cost(new_path, cm), new_path});
 
         }
