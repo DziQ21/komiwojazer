@@ -1,3 +1,3 @@
-C:/komiwojazer/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/komiwojazer/cmake-build-debug/CMakeFiles/tsp.dir
-C:/komiwojazer/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+D:/szablon/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/szablon/cmake-build-debug/CMakeFiles/tsp.dir
+D:/szablon/cmake-build-debug/CMakeFiles/rebuild_cache.dir

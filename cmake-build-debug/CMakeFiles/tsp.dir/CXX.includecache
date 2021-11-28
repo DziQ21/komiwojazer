@@ -22,9 +22,15 @@ limits
 vector
 -
 
-C:/komiwojazer/main.cpp
+D:/szablon/src/TSP.cpp
 TSP.hpp
-C:/komiwojazer/TSP.hpp
+D:/szablon/src/TSP.hpp
+algorithm
+-
+stack
+-
 iostream
+-
+optional
 -
 

@@ -9,14 +9,39 @@ int main() {
                       {8,   20, INF, 4,  2},
                       {19,  6,  4, INF,  7},
                       {12,  3,  2,   7, INF}};
-    CostMatrix test(cm);
-    auto a=test.get_min_values_in_rows();
-    auto b=test.get_min_values_in_cols();
-    auto c=test.get_vertex_cost(1,2);
 
-    //auto a=cm[0];
-    std::cout<<std::endl;
 
+
+
+//    StageState czesc(cm);
+//    std::cout<<czesc.get_matrix();
+//
+//    auto b=czesc.reduce_cost_matrix();
+//    std::cout<<czesc.get_matrix();
+//    auto a=czesc.choose_new_vertex();
+//    czesc.append_to_path(a.coordinates);
+//    czesc.update_cost_matrix(a.coordinates);
+//    std::cout<<czesc.get_matrix();
+//
+//
+//    auto c=czesc.reduce_cost_matrix();
+//    std::cout<<czesc.get_matrix();
+//    auto d=czesc.choose_new_vertex();
+//    czesc.append_to_path(d.coordinates);
+//    czesc.update_cost_matrix(d.coordinates);
+//    std::cout<<czesc.get_matrix();
+//    std::cout<<"";
+//    std::cout<<std::endl;
+//
+//    auto e=czesc.reduce_cost_matrix();
+//    std::cout<<czesc.get_matrix();
+//    auto f=czesc.choose_new_vertex();
+//    czesc.append_to_path(f.coordinates);
+//    czesc.update_cost_matrix(f.coordinates);
+//    std::cout<<czesc.get_matrix();
+//    auto lolek =czesc.get_path();
+//    std::cout<<"";
+//    std::cout<<std::endl;
     /* Rozwiązania:
  * 32 : 3 4 5 2 1
  * 32 : 2 5 4 3 1
@@ -45,9 +70,9 @@ int main() {
      * 19 : 4 3 0 2 1
      * 19 : 1 2 0 3 4
     */
-
+    printf("lol");
     tsp_solutions_t solutions = solve_tsp(cm);
-
+    printf("lol2");
 
     for (auto elem : solutions) {
         std::cout << elem.lower_bound << " : ";

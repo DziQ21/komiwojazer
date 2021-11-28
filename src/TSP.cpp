@@ -2,13 +2,14 @@
 
 #include <algorithm>
 #include <stack>
+#include <iostream>
 #include <optional>
 
 std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
     for (std::size_t r = 0; r < cm.size(); ++r) {
         for (std::size_t c = 0; c < cm.size(); ++c) {
             const auto& elem = cm[r][c];
-            os << (is_inf(elem) ? "INF" : std::to_string(elem)) << " ";
+            os << (is_inf(elem) ? "INF" : std::to_string(elem)) << "\t";
         }
         os << "\n";
     }
@@ -24,7 +25,27 @@ std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
  * @return The vector of consecutive vertex.
  */
 path_t StageState::get_path() {
-    throw;  // TODO: Implement it!
+    for(int i=0;i<unsorted_path_.size();i++)
+        for(int j=0;j<unsorted_path_.size();j++)
+            matrix_[unsorted_path_[i].col][unsorted_path_[j].row]=INF;
+    int rest=0;
+    for (int i = 0; i < matrix_.size(); ++i)
+        for (int j = 0; j < matrix_.size(); ++j)
+            if(matrix_[i][j]!=INF)
+            {
+                rest+=matrix_[i][j];
+                unsorted_path_.push_back(vertex_t(i,j));
+            }
+    lower_bound_+=rest;
+    path_t result;
+    result.push_back(unsorted_path_[0].row);
+    while(result.size()<unsorted_path_.size())
+        for(int i=0;i<unsorted_path_.size();i++)
+            if(unsorted_path_[i].row==result[result.size()-1])
+                result.push_back(unsorted_path_[i].col);
+    for(auto &el:result)
+        el++;
+    return result;
 }
 
 /**
@@ -35,10 +56,10 @@ std::vector<cost_t> CostMatrix::get_min_values_in_rows() const {
     std::vector<cost_t> result(matrix_.size());
     for(int & i : result)
         i=INF;
-    for(auto el:matrix_)
-        for(int i=0;i<result.size();i++)
-            if(result[i]>el[i])
-                result[i]=el[i];
+    for(int i=0;i<result.size();i++)
+        for(int j=0;j<result.size();j++)
+            if(result[i]>matrix_[i][j])
+                result[i]=matrix_[i][j];
     return result;
 }
 
@@ -48,6 +69,9 @@ std::vector<cost_t> CostMatrix::get_min_values_in_rows() const {
  */
 cost_t CostMatrix::reduce_rows() {
     auto rows=get_min_values_in_rows();
+    for(auto &el:rows)
+        if(el==INF)
+            el=0;
     for(int i=0;i<rows.size();i++)
         for(int j=0;j<rows.size();j++)
             if(matrix_[i][j]!=INF)
@@ -65,8 +89,8 @@ std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
         i=INF;
     for(int i=0;i<result.size();i++)
         for(int j=0;j<result.size();j++)
-            if(result[i]>matrix_[i][j])
-                result[i]=matrix_[i][j];
+            if(result[j]>matrix_[i][j])
+                result[j]=matrix_[i][j];
     return result;
 }
 
@@ -76,11 +100,14 @@ std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
  */
 cost_t CostMatrix::reduce_cols() {
     auto cols=get_min_values_in_cols();
+    for(auto &el:cols)
+        if(el==INF)
+            el=0;
     for(int i=0;i<cols.size();i++)
         for(int j=0;j<cols.size();j++)
             if(matrix_[i][j]!=INF)
                 matrix_[i][j]-=cols[j];
-            return std::accumulate(cols.begin(),cols.end(),0);
+    return std::accumulate(cols.begin(),cols.end(),0);
 }
 
 /**
@@ -89,16 +116,16 @@ cost_t CostMatrix::reduce_cols() {
  * @param col
  * @return The sum of minimal values in row and col, excluding the intersection value.
  */
+ //dół prawo
 cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
-    int a=0;
-    int b=0;
+    int a=INF;
+    int b=INF;
     for(int i=0;i<matrix_.size();i++)
-    {
-        if(i!=row and matrix_[col][i]!=INF and matrix_[col][i]>a)
-            a=matrix_[col][i];
-        if(i!=row and matrix_[i][row]!=INF and matrix_[i][row]>b)
-            b=matrix_[i][row];
-    }
+        if(i!=row and matrix_[i][col]!=INF and matrix_[i][col]<a)
+            a=matrix_[i][col];
+     for(int i=0;i<matrix_.size();i++)
+         if(i!=col and matrix_[row][i]!=INF and matrix_[row][i]<b)
+             b=matrix_[row][i];
     return a+b;
 }
 
@@ -113,7 +140,16 @@ cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
  * @return The coordinates of the next vertex.
  */
 NewVertex StageState::choose_new_vertex() {
-    throw;  // TODO: Implement it!
+    std::vector<NewVertex> zeros;
+    for(int i =0;i<matrix_.size();i++)
+        for(int j =0;j<matrix_.size();j++)
+            if(matrix_.get_matrix()[i][j]==0)
+                zeros.push_back(NewVertex(vertex_t(i,j),matrix_.get_vertex_cost(i,j)));
+    NewVertex result=zeros[0];
+    for(int i =1;i<zeros.size();i++)
+        if(zeros[i].cost>result.cost)
+            result=zeros[i];
+    return result;
 }
 
 /**
@@ -121,7 +157,13 @@ NewVertex StageState::choose_new_vertex() {
  * @param new_vertex
  */
 void StageState::update_cost_matrix(vertex_t new_vertex) {
-    throw;  // TODO: Implement it!
+    for(int i=0;i<matrix_.size();i++)
+    {
+        matrix_[new_vertex.row][i]=INF;
+        matrix_[i][new_vertex.col]=INF;
+    }
+    matrix_[new_vertex.col][new_vertex.row]=INF;
+
 }
 
 /**
@@ -129,7 +171,9 @@ void StageState::update_cost_matrix(vertex_t new_vertex) {
  * @return The sum of reduced values.
  */
 cost_t StageState::reduce_cost_matrix() {
-    throw;  // TODO: Implement it!
+    auto a=matrix_.reduce_rows();
+    auto b=matrix_.reduce_cols();
+    return a+b;
 }
 
 /**
@@ -206,11 +250,12 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
     tsp_solutions_t solutions;
 
     while (!tree_lifo.empty()) {
-
+        printf("w kolejce %d\n",tree_lifo.size());
         left_branch = tree_lifo.top();
         tree_lifo.pop();
 
         while (left_branch.get_level() != n_levels && left_branch.get_lower_bound() <= best_lb) {
+
             // Repeat until a 2x2 matrix is obtained or the lower bound is too high...
 
             if (left_branch.get_level() == 0) {
@@ -218,7 +263,7 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 1. Reduce the matrix in rows and columns.
-            cost_t new_cost = 0; // @TODO (KROK 1)
+            auto new_cost= left_branch.reduce_cost_matrix(); // @TODO (KROK 1)
 
             // 2. Update the lower bound and check the break condition.
             left_branch.update_lower_bound(new_cost);
@@ -227,24 +272,36 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 3. Get new vertex and the cost of not choosing it.
-            NewVertex new_vertex = NewVertex(); // @TODO (KROK 2)
+
+            NewVertex new_vertex = left_branch.choose_new_vertex().coordinates; // @TODO (KROK 2)
 
             // 4. @TODO Update the path - use append_to_path method.
 
+            left_branch.append_to_path(new_vertex.coordinates);
+
+
             // 5. @TODO (KROK 3) Update the cost matrix of the left branch.
+            left_branch.update_cost_matrix(new_vertex.coordinates);
 
             // 6. Update the right branch and push it to the LIFO.
+
             cost_t new_lower_bound = left_branch.get_lower_bound() + new_vertex.cost;
             tree_lifo.push(create_right_branch_matrix(cm, new_vertex.coordinates,
                                                       new_lower_bound));
+            auto test=create_right_branch_matrix(cm, new_vertex.coordinates,
+                                            new_lower_bound);
+            printf("co jest ?");
+
         }
 
         if (left_branch.get_lower_bound() <= best_lb) {
+
             // If the new solution is at least as good as the previous one,
             // save its lower bound and its path.
             best_lb = left_branch.get_lower_bound();
             path_t new_path = left_branch.get_path();
             solutions.push_back({get_optimal_cost(new_path, cm), new_path});
+
         }
     }
 
