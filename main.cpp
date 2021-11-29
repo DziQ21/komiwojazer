@@ -70,7 +70,6 @@ int main() {
      * 19 : 4 3 0 2 1
      * 19 : 1 2 0 3 4
     */
-    printf("lol");
     tsp_solutions_t solutions = solve_tsp(cm);
 
     for (auto elem : solutions) {

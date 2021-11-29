@@ -237,6 +237,7 @@ tsp_solutions_t filter_solutions(tsp_solutions_t solutions) {
 tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
 
     StageState left_branch(cm);
+//    CostMatrix mat = left_branch.get_matrix();
 
     // The branch & bound tree.
     std::stack<StageState> tree_lifo;
@@ -251,12 +252,13 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
     tsp_solutions_t solutions;
 
     while (!tree_lifo.empty()) {
-        printf("w kolejce %d\n",tree_lifo.size());
+
         left_branch = tree_lifo.top();
+//        std::cout << tree_lifo.size() << std::endl;
         tree_lifo.pop();
+//        std::cout << tree_lifo.size() << std::endl;
 
         while (left_branch.get_level() != n_levels && left_branch.get_lower_bound() <= best_lb) {
-
             // Repeat until a 2x2 matrix is obtained or the lower bound is too high...
 
             if (left_branch.get_level() == 0) {
@@ -264,7 +266,9 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 1. Reduce the matrix in rows and columns.
-            auto new_cost= left_branch.reduce_cost_matrix(); // @TODO (KROK 1)
+            cost_t new_cost = 0; // @TODO (KROK 1)
+            new_cost = left_branch.reduce_cost_matrix();
+
 
             // 2. Update the lower bound and check the break condition.
             left_branch.update_lower_bound(new_cost);
@@ -273,37 +277,28 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             }
 
             // 3. Get new vertex and the cost of not choosing it.
+            NewVertex new_vertex = NewVertex(); // @TODO (KROK 2)
+            new_vertex = left_branch.choose_new_vertex();
 
-            NewVertex new_vertex = left_branch.choose_new_vertex().coordinates; // @TODO (KROK 2)
 
             // 4. @TODO Update the path - use append_to_path method.
-
             left_branch.append_to_path(new_vertex.coordinates);
-
 
             // 5. @TODO (KROK 3) Update the cost matrix of the left branch.
             left_branch.update_cost_matrix(new_vertex.coordinates);
 
             // 6. Update the right branch and push it to the LIFO.
-
             cost_t new_lower_bound = left_branch.get_lower_bound() + new_vertex.cost;
             tree_lifo.push(create_right_branch_matrix(cm, new_vertex.coordinates,
                                                       new_lower_bound));
-            auto test=create_right_branch_matrix(cm, new_vertex.coordinates,
-                                            new_lower_bound);
-            std::cout<<test.get_matrix();
-
         }
 
         if (left_branch.get_lower_bound() <= best_lb) {
-
             // If the new solution is at least as good as the previous one,
             // save its lower bound and its path.
-
-            path_t new_path = left_branch.get_path();
             best_lb = left_branch.get_lower_bound();
+            path_t new_path = left_branch.get_path();
             solutions.push_back({get_optimal_cost(new_path, cm), new_path});
-
         }
     }
 
