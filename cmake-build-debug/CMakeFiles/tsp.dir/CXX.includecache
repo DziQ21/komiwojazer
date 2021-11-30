@@ -22,9 +22,15 @@ limits
 vector
 -
 
-D:/szablon/main.cpp
+D:/szablon/src/TSP.cpp
 TSP.hpp
-D:/szablon/TSP.hpp
+D:/szablon/src/TSP.hpp
+algorithm
+-
+stack
+-
 iostream
+-
+optional
 -
 

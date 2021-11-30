@@ -28,8 +28,8 @@ path_t StageState::get_path() {
 
     auto mat=get_matrix();
     std::vector<vertex_t> points;
-    for (int i = 0; i < mat.size(); ++i)
-        for (int j = 0; j < mat.size(); ++j)
+    for (std::size_t i = 0; i < mat.size(); ++i)
+        for (std::size_t j = 0; j < mat.size(); ++j)
             if(mat[i][j]!=INF)
             {
                 points.push_back(vertex_t(i,j));
@@ -50,8 +50,8 @@ path_t StageState::get_path() {
 //            mat[unsorted_path_[i].col][unsorted_path_[j].row]=INF;
     int rest=0;
     auto unsorted=unsorted_path_;
-    for (int i = 0; i < mat.size(); ++i)
-        for (int j = 0; j < mat.size(); ++j)
+    for (std::size_t i = 0; i < mat.size(); ++i)
+        for (std::size_t j = 0; j < mat.size(); ++j)
             if(mat[i][j]!=INF)
             {
                 rest+=mat[i][j];
@@ -61,7 +61,7 @@ path_t StageState::get_path() {
     path_t result;
     result.push_back(unsorted[0].row);
     while(result.size()<unsorted.size())
-        for(int i=0;i<unsorted.size()&&result.size()<unsorted.size();i++)
+        for(std::size_t i=0;i<unsorted.size()&&result.size()<unsorted.size();i++)
             if(unsorted[i].row==result[result.size()-1])
                 result.push_back(unsorted[i].col);
     for(auto &el:result)
@@ -77,8 +77,8 @@ std::vector<cost_t> CostMatrix::get_min_values_in_rows() const {
     std::vector<cost_t> result(matrix_.size());
     for(int & i : result)
         i=INF;
-    for(int i=0;i<result.size();i++)
-        for(int j=0;j<result.size();j++)
+    for(std::size_t i=0;i<result.size();i++)
+        for(std::size_t j=0;j<result.size();j++)
             if(result[i]>matrix_[i][j])
                 result[i]=matrix_[i][j];
     return result;
@@ -93,8 +93,8 @@ cost_t CostMatrix::reduce_rows() {
     for(auto &el:rows)
         if(el==INF)
             el=0;
-    for(int i=0;i<rows.size();i++)
-        for(int j=0;j<rows.size();j++)
+    for(std::size_t i=0;i<rows.size();i++)
+        for(std::size_t j=0;j<rows.size();j++)
             if(matrix_[i][j]!=INF)
                 matrix_[i][j]-=rows[i];
     return std::accumulate(rows.begin(),rows.end(),0);
@@ -108,8 +108,8 @@ std::vector<cost_t> CostMatrix::get_min_values_in_cols() const {
     std::vector<cost_t> result(matrix_.size());
     for(int & i : result)
         i=INF;
-    for(int i=0;i<result.size();i++)
-        for(int j=0;j<result.size();j++)
+    for(std::size_t i=0;i<result.size();i++)
+        for(std::size_t j=0;j<result.size();j++)
             if(result[j]>matrix_[i][j])
                 result[j]=matrix_[i][j];
     return result;
@@ -124,8 +124,8 @@ cost_t CostMatrix::reduce_cols() {
     for(auto &el:cols)
         if(el==INF)
             el=0;
-    for(int i=0;i<cols.size();i++)
-        for(int j=0;j<cols.size();j++)
+    for(std::size_t i=0;i<cols.size();i++)
+        for(std::size_t j=0;j<cols.size();j++)
             if(matrix_[i][j]!=INF)
                 matrix_[i][j]-=cols[j];
     return std::accumulate(cols.begin(),cols.end(),0);
@@ -141,10 +141,10 @@ cost_t CostMatrix::reduce_cols() {
 cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
     int a=INF;
     int b=INF;
-    for(int i=0;i<matrix_.size();i++)
+    for(std::size_t i=0;i<matrix_.size();i++)
         if(i!=row and matrix_[i][col]!=INF and matrix_[i][col]<a)
             a=matrix_[i][col];
-     for(int i=0;i<matrix_.size();i++)
+     for(std::size_t i=0;i<matrix_.size();i++)
          if(i!=col and matrix_[row][i]!=INF and matrix_[row][i]<b)
              b=matrix_[row][i];
     return a+b;
@@ -162,12 +162,12 @@ cost_t CostMatrix::get_vertex_cost(std::size_t row, std::size_t col) const {
  */
 NewVertex StageState::choose_new_vertex() {
     std::vector<NewVertex> zeros;
-    for(int i =0;i<matrix_.size();i++)
-        for(int j =0;j<matrix_.size();j++)
+    for(std::size_t i =0;i<matrix_.size();i++)
+        for(std::size_t j =0;j<matrix_.size();j++)
             if(matrix_.get_matrix()[i][j]==0)
                 zeros.push_back(NewVertex(vertex_t(i,j),matrix_.get_vertex_cost(i,j)));
     NewVertex result=zeros[0];
-    for(int i =1;i<zeros.size();i++)
+    for(std::size_t i =1;i<zeros.size();i++)
         if(zeros[i].cost>result.cost)
             result=zeros[i];
     return result;
@@ -178,7 +178,7 @@ NewVertex StageState::choose_new_vertex() {
  * @param new_vertex
  */
 void StageState::update_cost_matrix(vertex_t new_vertex) {
-    for(int i=0;i<matrix_.size();i++)
+    for(std::size_t i=0;i<matrix_.size();i++)
     {
         matrix_[new_vertex.row][i]=INF;
         matrix_[i][new_vertex.col]=INF;
@@ -207,7 +207,6 @@ cost_t get_optimal_cost(const path_t& optimal_path, const cost_matrix_t& m) {
     cost_t cost = 0;
 
     for (std::size_t idx = 1; idx < optimal_path.size(); ++idx) {
-        auto ocb=m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
         cost += m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
     }
 
@@ -318,7 +317,6 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             // save its lower bound and its path.
             best_lb = left_branch.get_lower_bound();
             path_t new_path = left_branch.get_path();
-            auto lol = get_optimal_cost(new_path, cm);
             solutions.push_back({get_optimal_cost(new_path, cm), new_path});
         }
     }

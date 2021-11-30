@@ -11,5 +11,5 @@ set(SOURCE_FILES
         src/tsp_setup.cpp
         src/TSP.cpp
         )
-
+add_compile_options(-Wall -Wextra -Werror -Wpedantic -pedantic-errors -Wconversion -Wunused-variable)
 add_executable(tsp ${SOURCE_FILES} main.cpp)
