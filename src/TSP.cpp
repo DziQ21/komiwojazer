@@ -25,23 +25,43 @@ std::ostream& operator<<(std::ostream& os, const CostMatrix& cm) {
  * @return The vector of consecutive vertex.
  */
 path_t StageState::get_path() {
-    for(int i=0;i<unsorted_path_.size();i++)
-        for(int j=0;j<unsorted_path_.size();j++)
-            matrix_[unsorted_path_[i].col][unsorted_path_[j].row]=INF;
+
+    auto mat=get_matrix();
+    std::vector<vertex_t> points;
+    for (int i = 0; i < mat.size(); ++i)
+        for (int j = 0; j < mat.size(); ++j)
+            if(mat[i][j]!=INF)
+            {
+                points.push_back(vertex_t(i,j));
+            }
+    std::size_t row;
+    std::size_t col;
+    if(points[0].row==points[1].row||points[2].row==points[1].row)
+        row=points[1].row;
+    else
+        row=points[0].row;
+    if(points[0].col==points[1].col||points[2].col==points[1].col)
+        col=points[1].col;
+    else
+        col=points[0].col;
+    mat[row][col]=INF;
+//    for(int i=0;i<unsorted_path_.size();i++)
+//        for(int j=0;j<unsorted_path_.size();j++)
+//            mat[unsorted_path_[i].col][unsorted_path_[j].row]=INF;
     int rest=0;
     auto unsorted=unsorted_path_;
-    for (int i = 0; i < matrix_.size(); ++i)
-        for (int j = 0; j < matrix_.size(); ++j)
-            if(matrix_[i][j]!=INF)
+    for (int i = 0; i < mat.size(); ++i)
+        for (int j = 0; j < mat.size(); ++j)
+            if(mat[i][j]!=INF)
             {
-                rest+=matrix_[i][j];
+                rest+=mat[i][j];
                 unsorted.push_back(vertex_t(i,j));
             }
     lower_bound_+=rest;
     path_t result;
     result.push_back(unsorted[0].row);
     while(result.size()<unsorted.size())
-        for(int i=0;i<unsorted.size();i++)
+        for(int i=0;i<unsorted.size()&&result.size()<unsorted.size();i++)
             if(unsorted[i].row==result[result.size()-1])
                 result.push_back(unsorted[i].col);
     for(auto &el:result)
@@ -187,8 +207,10 @@ cost_t get_optimal_cost(const path_t& optimal_path, const cost_matrix_t& m) {
     cost_t cost = 0;
 
     for (std::size_t idx = 1; idx < optimal_path.size(); ++idx) {
+        auto ocb=m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
         cost += m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
     }
+    printf("asdz");
 
     // Add the cost of returning from the last city to the initial one.
     cost += m[optimal_path[optimal_path.size() - 1] - 1][optimal_path[0] - 1];
@@ -260,7 +282,7 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
 
         while (left_branch.get_level() != n_levels && left_branch.get_lower_bound() <= best_lb) {
             // Repeat until a 2x2 matrix is obtained or the lower bound is too high...
-
+            printf("%d\n",tree_lifo.size());
             if (left_branch.get_level() == 0) {
                 left_branch.reset_lower_bound();
             }
@@ -292,12 +314,14 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             tree_lifo.push(create_right_branch_matrix(cm, new_vertex.coordinates,
                                                       new_lower_bound));
         }
+        printf("%d\n",best_lb);
 
         if (left_branch.get_lower_bound() <= best_lb) {
             // If the new solution is at least as good as the previous one,
             // save its lower bound and its path.
             best_lb = left_branch.get_lower_bound();
             path_t new_path = left_branch.get_path();
+            auto lol = get_optimal_cost(new_path, cm);
             solutions.push_back({get_optimal_cost(new_path, cm), new_path});
         }
     }
