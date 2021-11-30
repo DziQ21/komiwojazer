@@ -210,7 +210,6 @@ cost_t get_optimal_cost(const path_t& optimal_path, const cost_matrix_t& m) {
         auto ocb=m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
         cost += m[optimal_path[idx - 1] - 1][optimal_path[idx] - 1];
     }
-    printf("asdz");
 
     // Add the cost of returning from the last city to the initial one.
     cost += m[optimal_path[optimal_path.size() - 1] - 1][optimal_path[0] - 1];
@@ -282,7 +281,6 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
 
         while (left_branch.get_level() != n_levels && left_branch.get_lower_bound() <= best_lb) {
             // Repeat until a 2x2 matrix is obtained or the lower bound is too high...
-            printf("%d\n",tree_lifo.size());
             if (left_branch.get_level() == 0) {
                 left_branch.reset_lower_bound();
             }
@@ -314,7 +312,6 @@ tsp_solutions_t solve_tsp(const cost_matrix_t& cm) {
             tree_lifo.push(create_right_branch_matrix(cm, new_vertex.coordinates,
                                                       new_lower_bound));
         }
-        printf("%d\n",best_lb);
 
         if (left_branch.get_lower_bound() <= best_lb) {
             // If the new solution is at least as good as the previous one,
